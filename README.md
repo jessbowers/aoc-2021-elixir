@@ -1,21 +1,34 @@
 # ElixirAoc2021
 
-**TODO: Add description**
+Advent of Code 2021 in Elixir!
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `elixir_aoc_2021` to your list of dependencies in `mix.exs`:
+    mix deps.get
 
-```elixir
-def deps do
-  [
-    {:elixir_aoc_2021, "~> 0.1.0"}
-  ]
-end
-```
+    # in config/config.exs
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/elixir_aoc_2021>.
+    import Config
 
+    config :advent_of_code_utils,
+    session:
+        "... cookie goes here ... "
+
+    config :advent_of_code_utils,
+        day: 6,
+        year: 2021
+
+## Setting up for a day
+
+    # create scaffold
+    mix aoc
+    
+    # just fetch data:
+    mix aoc.get
+
+## Running 
+
+    > iex -S mix
+    > recompile()
+    > p1()
+    > p2()
