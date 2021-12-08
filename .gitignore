@@ -27,3 +27,4 @@ elixir_aoc_2021-*.tar
 .elixir_ls
 config/config.exs
 /input/
+.DS_Store
