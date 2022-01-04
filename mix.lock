@@ -1,3 +1,4 @@
 %{
   "advent_of_code_utils": {:hex, :advent_of_code_utils, "1.0.0", "e9ce8be22988e095991168e9d2dde802afc213aaae64491e9fde84dd877db41c", [:mix], [], "hexpm", "1fa5217ccb95a38ce2312dd7ea6057b0d0002a3eba7490feab704df4b8a94038"},
+  "priority_queue": {:hex, :priority_queue, "1.0.0", "5ff5f83a764b635e71f0e41bf78b9763bb233bbac8f5733b4b09b6730bddf866", [:mix], [], "hexpm", "ba3dc420a5898d863803455c05ad870c6b6f3adb12b50ebea6cd6aeed1b358b7"},
 }
