@@ -2,8 +2,8 @@ import AOC
 use Bitwise
 
 aoc 2021, 16 do
-  def p1, do: parse() |> parse_packets() |> score()
-  def p2, do: parse() |> parse_packets() |> apply_operators()
+  def p1, do: parse() |> packet() |> score()
+  def p2, do: parse() |> packet() |> apply_operators()
 
   defp parse() do
     input_string()
@@ -43,11 +43,6 @@ aoc 2021, 16 do
   # parsing end state
   defp packet(<<>>), do: []
   defp packet(<<_::bits>>), do: []
-
-  # parse all packets in the input
-  defp parse_packets(binary) do
-    packet(binary)
-  end
 
   # Sum up all the versions
   defp score([]), do: 0

@@ -12,28 +12,25 @@ aoc 2021, 6 do
       |> Enum.sort()
       |> Enum.frequencies()
 
+  defp spawn(fish, 0), do: fish
+
   defp spawn(fish, days) do
-    # IO.puts("Day #{days}: #{inspect(fish)}")
-    if days > 0 do
-      baby_count = Map.get(fish, 0, 0)
+    baby_count = Map.get(fish, 0, 0)
 
-      fish =
-        fish
-        |> Map.delete(0)
-        |> Map.to_list()
-        |> Enum.map(fn {day, count} -> {day - 1, count} end)
-        |> Map.new()
-        |> Map.put(8, baby_count)
-        |> Map.get_and_update(6, fn
-          nil -> {nil, baby_count}
-          c -> {c, c + baby_count}
-        end)
-        |> elem(1)
-
-      spawn(fish, days - 1)
-    else
+    fish =
       fish
-    end
+      |> Map.delete(0)
+      |> Map.to_list()
+      |> Enum.map(fn {day, count} -> {day - 1, count} end)
+      |> Map.new()
+      |> Map.put(8, baby_count)
+      |> Map.get_and_update(6, fn
+        nil -> {nil, baby_count}
+        c -> {c, c + baby_count}
+      end)
+      |> elem(1)
+
+    spawn(fish, days - 1)
   end
 
   defp count(fish) do
