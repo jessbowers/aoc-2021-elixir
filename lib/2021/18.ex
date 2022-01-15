@@ -1,8 +1,8 @@
 import AOC
 
 aoc 2021, 18 do
-  def p1, do: parse() |> Enum.reduce(&add(&2, &1)) |> IO.inspect() |> magnitude()
-  # def p2, do: parse() |> find_all_velocities() |> Enum.count()
+  def p1, do: parse() |> Enum.reduce(&add(&2, &1)) |> magnitude()
+  def p2, do: parse() |> add_all()
 
   defp parse() do
     input_string()
@@ -35,6 +35,7 @@ aoc 2021, 18 do
   defp reduce(terms) do
     with pair when is_list(pair) <- explode(terms, 0),
          pair when not is_tuple(pair) <- split(terms) do
+      # happy / terminal path, no explode or split
       pair
     else
       {:explode, pair, _, _} ->
@@ -45,7 +46,7 @@ aoc 2021, 18 do
     end
   end
 
-  # check for explode case and handle it
+  # check for explode case
   defp explode([a, b], depth) when is_integer(a) and is_integer(b) and depth >= 4,
     do: {:explode, 0, a, b}
 
@@ -56,29 +57,30 @@ aoc 2021, 18 do
          {:r, r} when not is_tuple(r) <- {:r, explode(r, depth + 1)} do
       [l, r]
     else
-      # initial result from an explode, converts to 0
-      {:l, {:explode, 0, dl, dr}} ->
-        {r, dr} = accumulate(:l, r, dr)
-        {:explode, [0, r], dl, dr}
+      # # initial result from an explode, converts to 0
+      # {:l, {:explode, 0, dl, dr}} ->
+      #   {r, dr} = accumulate(:l, r, dr)
+      #   {:explode, [0, r], dl, dr}
 
-      # initial result from an explode, converts to 0
-      {:r, {:explode, 0, dl, dr}} ->
-        {l, dl} = accumulate(:r, l, dl)
-        {:explode, [l, 0], dl, dr}
+      # # initial result from an explode, converts to 0
+      # {:r, {:explode, 0, dl, dr}} ->
+      #   {l, dl} = accumulate(:r, l, dl)
+      #   {:explode, [l, 0], dl, dr}
 
-      # final result from explode with no more adds
-      {:l, {:explode, pair, 0, 0}} ->
-        {:explode, [pair, r], 0, 0}
+      # # final result from explode with no more adds
+      # {:l, {:explode, pair, 0, 0}} ->
+      #   {:explode, [pair, r], 0, 0}
 
-      # final result from explode with no more adds
-      {:r, {:explode, pair, 0, 0}} ->
-        {:explode, [l, pair], 0, 0}
+      # # final result from explode with no more adds
+      # {:r, {:explode, pair, 0, 0}} ->
+      #   {:explode, [l, pair], 0, 0}
 
       # left explode
       {:l, {:explode, pair, dl, dr}} ->
         {r, dr} = accumulate(:l, r, dr)
         {:explode, [pair, r], dl, dr}
 
+      # right explode
       {:r, {:explode, pair, dl, dr}} ->
         {l, dl} = accumulate(:r, l, dl)
         {:explode, [l, pair], dl, dr}
@@ -120,5 +122,16 @@ aoc 2021, 18 do
          b <- magnitude(b) do
       magnitude([a, b])
     end
+  end
+
+  # create a combination of all left/right
+  defp combine(numbers), do: for(l <- numbers, r <- numbers, l != r, do: {l, r})
+
+  # add all combinations in this list
+  defp add_all(numbers) do
+    numbers
+    |> combine()
+    |> Enum.map(fn {l, r} -> add(l, r) |> magnitude() end)
+    |> Enum.max()
   end
 end
