@@ -57,24 +57,6 @@ aoc 2021, 18 do
          {:r, r} when not is_tuple(r) <- {:r, explode(r, depth + 1)} do
       [l, r]
     else
-      # # initial result from an explode, converts to 0
-      # {:l, {:explode, 0, dl, dr}} ->
-      #   {r, dr} = accumulate(:l, r, dr)
-      #   {:explode, [0, r], dl, dr}
-
-      # # initial result from an explode, converts to 0
-      # {:r, {:explode, 0, dl, dr}} ->
-      #   {l, dl} = accumulate(:r, l, dl)
-      #   {:explode, [l, 0], dl, dr}
-
-      # # final result from explode with no more adds
-      # {:l, {:explode, pair, 0, 0}} ->
-      #   {:explode, [pair, r], 0, 0}
-
-      # # final result from explode with no more adds
-      # {:r, {:explode, pair, 0, 0}} ->
-      #   {:explode, [l, pair], 0, 0}
-
       # left explode
       {:l, {:explode, pair, dl, dr}} ->
         {r, dr} = accumulate(:l, r, dr)
