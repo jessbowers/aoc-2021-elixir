@@ -90,8 +90,11 @@ aoc 2021, 19 do
 
   defp closer(pt1, [{pt2, dx2} | tail], target) do
     case {delta(target, pt1), dx2} do
-      {d1, d2} when d1 < d2 -> [{pt1, d1}, {pt2, dx2} | tail]
-      {d1, _} -> [{pt2, dx2}, {pt1, d1} | tail]
+      {d1, d2} when d1 <= d2 ->
+        [{pt1, d1}, {pt2, dx2}]
+
+      _ ->
+        [{pt2, dx2} | closer(pt1, tail, target)] |> Enum.take(2)
     end
   end
 
@@ -108,18 +111,33 @@ aoc 2021, 19 do
   defp nearest({:fork, {mid, idx}, left, right}, target, cst) when elem(target, idx) >= mid,
     do: nearest_fork({{mid, idx}, right, left}, target, cst)
 
-  defp nearest_fork({_, first, second}, target, cst) do
-    [nearest(first, target, cst), nearest(second, target, cst)]
-    |> List.flatten()
-    |> Enum.sort_by(&elem(&1, 1))
+  defp nearest_fork({{mid, idx}, first, second}, target, closests) do
+    # what is the delta from target -> mid value on this dimension?
+    target_val = elem(target, idx)
+    mid_dx = abs(target_val - mid)
+
+    case nearest(first, target, closests) do
+      [hd, sec] when abs(target_val - elem(elem(sec, 0), idx)) >= mid_dx ->
+        # if 1st, 2nd are both farther away than the mid_dx, look on the other branch
+        # this won't catch every nearest point, but should catch 90% of them & be faster
+        second |> nearest(target, [hd, sec])
+
+      [hd, sec] ->
+        # normal case, only two elements, not closer to mid, just return
+        [hd, sec]
+
+      cst ->
+        # all other cases, go ahead and search 2nd branch
+        second |> nearest(target, cst)
+    end
   end
 
   # only take the top two nearest points
   defp reduce_near_pts(ns), do: ns |> Enum.take(2) |> Enum.map(&elem(&1, 1)) |> List.to_tuple()
 
   # build a list of nearest
-  defp all_nearest({tree, pts}) do
-    pts
+  defp all_nearest({tree, scan}) do
+    scan
     |> Enum.map(&{nearest(tree, &1, []), &1})
     |> Enum.map(fn {ns, pt} -> {reduce_near_pts(ns), pt} end)
   end
@@ -134,7 +152,11 @@ aoc 2021, 19 do
     |> Enum.filter(fn {_, f} -> f >= 2 end)
     # populate the list with just the two points, one from each scanner
     |> Enum.map(fn {dx, _} -> {List.keyfind(nears1, dx, 0), List.keyfind(nears2, dx, 0)} end)
-    |> Enum.map(fn {{_dx, pt1}, {_, pt2}} -> {pt1, pt2} end)
+    |> Enum.flat_map(fn
+      {{_dx, pt1}, {_, pt2}} -> [{pt1, pt2}]
+      {nil, _} -> []
+      {_, nil} -> []
+    end)
   end
 
   # brute force solve rotation for a given set of common pts
@@ -162,6 +184,7 @@ aoc 2021, 19 do
     end
   end
 
+  # given set of points, rotate & transform
   defp transform_points(pts, {rot, {dx, dy, dz}}) do
     pts
     |> Enum.map(fn {d, pt} -> {d, rot.(pt)} end)
