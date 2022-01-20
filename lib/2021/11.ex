@@ -62,7 +62,7 @@ aoc 2021, 11 do
     end)
   end
 
-  defp energy_steps(map, count, steps) do
+  defp energy_steps(map, _count, steps) do
     1..steps |> Enum.reduce({0, map}, &do_step/2)
   end
 

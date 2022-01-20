@@ -3,7 +3,6 @@ import AOC
 aoc 2021, 19 do
   def p1, do: parse() |> solve() |> then(&Enum.count(elem(&1, 0)))
   def p2, do: parse() |> solve() |> max_scanner_distance()
-  # def p2, do: parse() |> add_all()
 
   # parse a line containing x,y,z
   defp parse_point(p),
@@ -85,6 +84,9 @@ aoc 2021, 19 do
   defp delta({x1, y1, z1}, {x2, y2, z2}),
     do: (x1 - x2) ** 2 + (y1 - y2) ** 2 + (z1 - z2) ** 2
 
+  # alt distance (manhattan method) between two points (for pt 2)
+  defp manhattan({x1, y1, z1}, {x2, y2, z2}), do: abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)
+
   # return the closer point to the target
   defp closer(pt1, [], target), do: [{pt1, delta(target, pt1)}]
 
@@ -114,13 +116,13 @@ aoc 2021, 19 do
   defp nearest_fork({{mid, idx}, first, second}, target, closests) do
     # what is the delta from target -> mid value on this dimension?
     target_val = elem(target, idx)
-    mid_dx = abs(target_val - mid)
+    mid_dx = abs(target_val - mid) ** 2
 
     case nearest(first, target, closests) do
-      [hd, sec] when abs(target_val - elem(elem(sec, 0), idx)) >= mid_dx ->
+      [hd, {sec, sec_dx}] when sec_dx >= mid_dx ->
         # if 1st, 2nd are both farther away than the mid_dx, look on the other branch
         # this won't catch every nearest point, but should catch 90% of them & be faster
-        second |> nearest(target, [hd, sec])
+        second |> nearest(target, [hd, {sec, sec_dx}])
 
       [hd, sec] ->
         # normal case, only two elements, not closer to mid, just return
@@ -207,12 +209,16 @@ aoc 2021, 19 do
         |> Enum.concat(base)
         |> Enum.uniq()
 
+      # store the scanner as well
+      # start with 0,0,0 and rotate & translate as the points
       scanner =
         [{0, {0, 0, 0}}] |> transform_points(rot_dx) |> Enum.map(&elem(&1, 1)) |> Enum.at(0)
 
+      # recurse into the next
       find_commons(tail, base, [scanner | scanners])
     else
       {:common, _} ->
+        # no commons found, move to the next scanner
         find_commons(tail ++ [head], base, scanners)
     end
   end
@@ -235,9 +241,6 @@ aoc 2021, 19 do
     # fit the scans into a single field
     |> fit_scans()
   end
-
-  # alt distance (manhattan method) between two points (for pt 2)
-  defp manhattan({x1, y1, z1}, {x2, y2, z2}), do: abs(x1 - x2) + abs(y1 - y2) + abs(z1 - z2)
 
   # given list of scanners, what's the max distance between them
   defp max_scanner_distance({_, scanners}) do
